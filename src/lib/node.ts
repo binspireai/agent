@@ -1,66 +1,69 @@
-import { SystemMessage } from "@langchain/core/messages";
-import type { MessagesStateType } from "./state";
-import { modelWithTools, toolsByName } from "@/tools/binspire";
-import { AIMessage, ToolMessage } from "@langchain/core/messages";
+import {
+	AIMessage,
+	SystemMessage,
+	type ToolMessage,
+} from "@langchain/core/messages";
 import { END } from "@langchain/langgraph";
+import { modelWithTools, toolsByName } from "@/tools/binspire";
 import { SYSTEM_PROMPT } from "./prompt";
+import type { MessagesStateType } from "./state";
 
 export async function llmCall(state: MessagesStateType) {
-  if (state.loopCount > 5) {
-    return {
-      messages: [
-        new AIMessage(
-          "I've reached my operational limit for this request. Please try a different query.",
-        ),
-      ],
-      loopCount: 0,
-    };
-  }
+	if (state.loopCount > 5) {
+		return {
+			messages: [
+				new AIMessage(
+					"I've reached my operational limit for this request. Please try a different query.",
+				),
+			],
+			loopCount: 0,
+		};
+	}
 
-  const response = await modelWithTools.invoke([
-    new SystemMessage(SYSTEM_PROMPT),
-    ...state.messages,
-  ]);
+	const response = await modelWithTools.invoke([
+		new SystemMessage(SYSTEM_PROMPT),
+		...state.messages,
+	]);
 
-  return {
-    messages: [response],
-    loopCount: 1,
-  };
+	return {
+		messages: [response],
+		loopCount: 1,
+	};
 }
 
 export async function toolNode(state: MessagesStateType) {
-  const lastMessage = state.messages.at(-1);
+	const lastMessage = state.messages.at(-1);
 
-  if (lastMessage == null || !AIMessage.isInstance(lastMessage)) {
-    return { messages: [] };
-  }
+	if (lastMessage == null || !AIMessage.isInstance(lastMessage)) {
+		return { messages: [] };
+	}
 
-  const result: ToolMessage[] = [];
+	const result: ToolMessage[] = [];
 
-  for (const toolCall of lastMessage.tool_calls ?? []) {
-    const tool = toolsByName[toolCall.name];
+	for (const toolCall of lastMessage.tool_calls ?? []) {
+		const tool = toolsByName[toolCall.name];
 
-    if (!tool) {
-      throw new Error(`Tool ${toolCall.name} not found`);
-    }
+		if (!tool) {
+			throw new Error(`Tool ${toolCall.name} not found`);
+		}
 
-    const observation = await tool.invoke(toolCall);
-    result.push(observation);
-  }
+		const observation = await tool.invoke(toolCall);
+		result.push(observation);
+	}
 
-  return { messages: result };
+	return { messages: result };
 }
 
 export async function shouldContinue(state: MessagesStateType) {
-  const lastMessage = state.messages.at(-1);
+	const lastMessage = state.messages.at(-1);
 
-  if (!lastMessage || !AIMessage.isInstance(lastMessage)) {
-    return END;
-  }
+	if (!lastMessage || !AIMessage.isInstance(lastMessage)) {
+		return END;
+	}
 
-  if (lastMessage.tool_calls?.length) {
-    return "toolNode";
-  }
+	if (lastMessage.tool_calls?.length) {
+		return "toolNode";
+	}
 
-  return END;
+	return END;
 }

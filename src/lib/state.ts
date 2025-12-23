@@ -1,22 +1,22 @@
-import { MessagesAnnotation, Annotation } from "@langchain/langgraph";
+import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
 
 export const MessagesState = Annotation.Root({
-  ...MessagesAnnotation.spec,
+	...MessagesAnnotation.spec,
 
-  loopCount: Annotation<number>({
-    reducer: (x, y) => x + y,
-    default: () => 0,
-  }),
+	loopCount: Annotation<number>({
+		reducer: (x, y) => x + y,
+		default: () => 0,
+	}),
 
-  focusedId: Annotation<string | null>({
-    reducer: (existing, update) => update ?? existing,
-    default: () => null,
-  }),
+	focusedId: Annotation<string | null>({
+		reducer: (existing, update) => update ?? existing,
+		default: () => null,
+	}),
 
-  lastActionSummary: Annotation<string>({
-    reducer: (existing, update) => update,
-    default: () => "Idle",
-  }),
+	lastActionSummary: Annotation<string>({
+		reducer: (existing, update) => update,
+		default: () => "Idle",
+	}),
 });
 
 export type MessagesStateType = typeof MessagesState.State;
