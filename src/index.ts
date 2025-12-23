@@ -36,4 +36,4 @@ async function runAgent() {
 	}
 }
 
-runAgent().catch(console.error);
+export { agent };
