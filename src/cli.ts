@@ -1,5 +1,6 @@
-import { HumanMessage } from "@langchain/core/messages";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { agent } from ".";
+import { SYSTEM_PROMPT } from "./lib/prompt";
 
 async function runAgent() {
 	console.log("♻️  Binspire SWMS Agent Connected. Type 'exit' to quit.");
@@ -15,7 +16,12 @@ async function runAgent() {
 		}
 
 		const result = await agent.invoke(
-			{ messages: [new HumanMessage(userInput)] },
+			{
+				messages: [
+					new SystemMessage(SYSTEM_PROMPT),
+					new HumanMessage(userInput),
+				],
+			},
 			config,
 		);
 
