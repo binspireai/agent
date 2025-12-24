@@ -12,7 +12,7 @@
 	},
 	"scripts": {
 		"build": "tsdown",
-		"dev": "bun run --hot ./src/index.ts",
+		"dev": "bunx @langchain/langgraph-cli dev",
 		"dev:cli": "bun run --hot ./src/cli.ts",
 		"start": "bun run ./dist/index.mjs",
 		"format": "bunx biome format --write",

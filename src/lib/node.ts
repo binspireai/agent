@@ -16,7 +16,6 @@ export async function llmCall(state: MessagesStateType) {
 
 	return {
 		messages: [response],
-		loopCount: (state.loopCount || 0) + 1,
 	};
 }
 

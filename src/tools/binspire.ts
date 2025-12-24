@@ -18,7 +18,6 @@ const client = new MultiServerMCPClient({
 
 const mcpTools = await client.getTools();
 
-// Augment the LLM with tools
 export const toolsByName = Object.fromEntries(
 	mcpTools.map((tool) => [tool.name, tool]),
 );
