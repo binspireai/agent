@@ -9,10 +9,12 @@ import { SYSTEM_PROMPT } from "./prompt";
 import type { MessagesStateType } from "./state";
 
 export async function llmCall(state: MessagesStateType) {
-	const response = await modelWithTools.invoke([
-		new SystemMessage(SYSTEM_PROMPT),
-		...state.messages,
-	]);
+	const messages =
+		state.messages.length === 0
+			? [new SystemMessage(SYSTEM_PROMPT)]
+			: state.messages;
+
+	const response = await modelWithTools.invoke(messages);
 
 	return {
 		messages: [response],
